@@ -1,42 +1,40 @@
-# Deploy BOSS on Railway
+# Deploy BOSS
 
-## One-click path (recommended)
+## Railway (recommended)
 
-1. Open [railway.app/new](https://railway.app/new)
-2. **Deploy from GitHub repo** → select `nrlartt/boss`
-3. Railway detects `railway.toml` and runs `npm start`
-4. **Settings → Networking → Generate domain**
-5. Copy the public URL (e.g. `https://boss-production-xxxx.up.railway.app`)
-6. Edit `docs/live.json` in GitHub and set `"url"` to that domain, then push
+1. [railway.app/new](https://railway.app/new) → **Deploy from GitHub repo** → `nrlartt/boss`
+2. **Settings → Networking → Generate domain**
+3. Set optional variables:
 
-No Binance API keys are required for the public demo. The hosted instance:
+| Variable | Value |
+|----------|--------|
+| `BOSS_PUBLIC_URL` | `https://<your-domain>` |
+| `BOSS_HOSTED` | `1` |
+| `BINANCE_SPOT_BASE` | `https://data-api.binance.vision` (auto on hosted if unset) |
 
-- reads live Binance public market data
-- runs the full desk UI and BOSS MCP at `/mcp`
-- shows a **LIVE · Binance Spot engine** status bar
-- does not ship secrets from your local `.env`
+Do not set Binance API keys on the public demo.
 
-## Optional environment variables
+4. Verify: `GET https://<your-domain>/api/health` → `"ok": true`, `"binanceSpot.reachable": true`
 
-| Variable | Purpose |
-|---|---|
-| `BOSS_HOSTED=1` | Force hosted banner (auto-set on Railway) |
-| `BINANCE_SPOT_BASE` | Defaults to `https://data-api.binance.vision` on Railway |
-| `BOSS_PUBLIC_URL` | Override public base URL for MCP links |
-| `BOSS_HMAC_SECRET` | Stable order stamps across redeploys (optional) |
+### Routes
 
-Do **not** set `BINANCE_API_KEY` / `BINANCE_SECRET_KEY` on the public demo.
+| Path | Serves |
+|------|--------|
+| `/` | Landing page |
+| `/app/` | Trading desk |
+| `/docs/` | Documentation |
+| `/mcp` | BOSS MCP (Streamable HTTP) |
+| `/api/*` | REST API |
 
-## CLI path
+## CLI
 
 ```bash
 npx @railway/cli login
-cd boss
-npx @railway/cli init
+npx @railway/cli link
 npx @railway/cli up
 npx @railway/cli domain
 ```
 
-## Health check
+## GitHub Pages
 
-`GET /api/health` must return `ok: true` and `binanceSpot.reachable: true` for the live engine bar to turn green.
+The `docs/` folder redirects to the live Railway site. Enable Pages from the `docs/` directory on `main` if you want `https://nrlartt.github.io/boss/` as a secondary entry point.

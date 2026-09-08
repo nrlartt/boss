@@ -1,9 +1,27 @@
 {
   "name": "boss",
   "version": "1.0.0",
-  "private": true,
+  "description": "Permission-first Binance Spot copilot for Agent OS — observe, plan, policy gate, EXECUTE-only sends.",
   "type": "module",
-  "description": "BOSS — permission-first copilot for Binance. Observe live markets, draft an exact spot intent, run a fail-closed policy gate, then send only after you approve.",
+  "license": "MIT",
+  "author": "nrlartt",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/nrlartt/boss.git"
+  },
+  "homepage": "https://boss-desk-production.up.railway.app/",
+  "bugs": {
+    "url": "https://github.com/nrlartt/boss/issues"
+  },
+  "keywords": [
+    "binance",
+    "agent-os",
+    "mcp",
+    "spot",
+    "trading",
+    "policy-gate",
+    "model-context-protocol"
+  ],
   "scripts": {
     "dev": "tsx watch src/http/server.ts",
     "start": "tsx src/http/server.ts",
