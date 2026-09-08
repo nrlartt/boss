@@ -1,0 +1,16 @@
+{
+  "version": 1,
+  "product": "SPOT",
+  "killSwitch": false,
+  "allowedSides": ["BUY", "SELL"],
+  "allowedOrderTypes": ["LIMIT", "MARKET"],
+  "maxNotionalUsdt": "100",
+  "maxDailyNotionalUsdt": "500",
+  "maxPriceDeviationBps": "50",
+  "maxSpreadBps": "40",
+  "maxEvidenceAgeMs": 15000,
+  "approvalTtlMs": 60000,
+  "requireApproval": true,
+  "minBookCoverage": "0.25",
+  "symbolAllowlist": []
+}

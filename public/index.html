@@ -1,0 +1,341 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>BOSS — Binance Spot desk</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="/app.css" />
+  </head>
+  <body>
+    <header class="app-header">
+      <div class="header-brand">
+        <span class="logo">BOSS</span>
+        <span class="logo-sub">Spot desk</span>
+      </div>
+
+      <nav class="nav-tabs" aria-label="Workspace">
+        <button type="button" class="nav-tab active" data-tab="market">Market</button>
+        <button type="button" class="nav-tab" data-tab="analysis">Analysis</button>
+        <button type="button" class="nav-tab" data-tab="ops">Operations</button>
+      </nav>
+
+      <form id="command-form" class="header-command">
+        <input
+          id="command"
+          name="command"
+          autocomplete="off"
+          spellcheck="false"
+          placeholder="analyze BTCUSDT · plan buy 50 usdt BTCUSDT"
+        />
+        <button type="submit" class="btn btn-accent">Run</button>
+      </form>
+
+      <div class="header-status">
+        <div class="pill" id="health-pill">feed</div>
+        <div class="pill" id="account-pill">account</div>
+        <div class="pill" id="scope-pill">scope</div>
+        <span class="clock tabular" id="clock"></span>
+        <button type="button" class="btn btn-ghost btn-kill" id="kill-btn">Kill</button>
+      </div>
+    </header>
+
+    <div class="quick-bar">
+      <div class="chips">
+        <button type="button" data-cmd="analyze BTCUSDT">Analyze BTC</button>
+        <button type="button" data-cmd="analyze ETHUSDT">Analyze ETH</button>
+        <button type="button" data-cmd="plan buy 50 usdt BTCUSDT">Plan buy 50 USDT</button>
+        <button type="button" data-cmd="plan sell 0.01 BTCUSDT">Plan sell 0.01 BTC</button>
+      </div>
+    </div>
+
+    <div class="notify-bar" id="notify-bar" hidden>
+      <span>Browser alerts are off — enable to get price alert notifications.</span>
+      <button type="button" class="btn btn-ghost btn-sm" id="notify-enable-btn">Enable notifications</button>
+    </div>
+
+    <section class="burn-banner" id="burn-banner" hidden>
+      <div>
+        <strong>Trade scope burned</strong>
+        <span id="burn-reason">A classified exchange order did not match a BOSS stamp.</span>
+      </div>
+      <button type="button" class="btn btn-ghost" id="restore-btn">Restore scope</button>
+    </section>
+
+    <!-- MARKET -->
+    <div class="workspace tab-panel active" data-panel="market">
+      <aside class="panel sidebar">
+        <header class="panel-head">
+          <h2>Markets</h2>
+          <div class="panel-head-actions">
+            <button type="button" class="btn btn-ghost btn-sm" id="tape-collapse-btn" title="Collapse markets list">◀</button>
+            <span class="meta" id="tape-src">binance-spot-ws</span>
+          </div>
+        </header>
+        <div class="tape-search-wrap">
+          <input id="tape-search" type="search" placeholder="Search pair…" autocomplete="off" />
+        </div>
+        <div class="tape-scroll">
+          <div class="tape-head">
+            <span>Pair</span><span>Last</span><span>24h</span>
+          </div>
+          <div id="tape" class="tape"></div>
+        </div>
+      </aside>
+
+      <section class="panel market-center">
+        <header class="panel-head market-head">
+          <div>
+            <h2 id="market-title">BTCUSDT</h2>
+            <span class="meta" id="market-age">waiting for live tick</span>
+          </div>
+          <div class="chart-toolbar">
+            <div class="tf-tabs" role="tablist">
+              <button type="button" class="tf-tab active" data-tf="1h">1H</button>
+              <button type="button" class="tf-tab" data-tf="4h">4H</button>
+            </div>
+            <button type="button" class="btn btn-ghost btn-sm" id="alert-quick-btn">+ Price alert</button>
+          </div>
+        </header>
+        <div class="market-chart-zone">
+          <div id="quote" class="quote"></div>
+          <div id="candle-chart" class="candle-chart"></div>
+          <form id="alert-quick-form" class="alert-quick-form" hidden>
+            <input id="alert-price" type="text" inputmode="decimal" placeholder="Alert price" />
+            <select id="alert-dir">
+              <option value="above">Cross above</option>
+              <option value="below">Cross below</option>
+            </select>
+            <button type="submit" class="btn btn-accent btn-sm">Set</button>
+            <button type="button" class="btn btn-ghost btn-sm" id="alert-quick-cancel">Cancel</button>
+          </form>
+          <div id="alert-toast" class="alert-toast" hidden></div>
+        </div>
+        <div class="market-book-wrap">
+        <div class="book-grid">
+          <div class="book-col">
+            <div class="book-label asks-label">Asks</div>
+            <div class="book-cols"><span>Price (USDT)</span><span>Amount</span></div>
+            <div id="asks" class="book asks"></div>
+          </div>
+          <div class="book-mid">
+            <div class="spread-line" id="spread-line">—</div>
+          </div>
+          <div class="book-col">
+            <div class="book-label bids-label">Bids</div>
+            <div class="book-cols"><span>Price (USDT)</span><span>Amount</span></div>
+            <div id="bids" class="book bids"></div>
+          </div>
+        </div>
+        </div>
+      </section>
+
+      <aside class="panel gate-panel">
+        <header class="panel-head">
+          <h2>Gate</h2>
+          <span class="meta verdict-tag" id="verdict">idle</span>
+        </header>
+        <div class="idle-state" id="gate-idle">
+          <p class="idle-title">No active plan</p>
+          <p class="idle-copy">Run <strong>analyze</strong> for research or <strong>plan buy/sell</strong> to open the policy gate.</p>
+        </div>
+        <div id="plan" class="plan"></div>
+        <div id="gate-mix" class="gate-mix"></div>
+        <div id="rules" class="rules"></div>
+        <form id="approve-form" class="approve" hidden>
+          <label for="phrase">Type EXECUTE to mint a one-time send token</label>
+          <div class="row">
+            <input id="phrase" placeholder="EXECUTE" autocomplete="off" />
+            <button type="submit" class="btn btn-accent">Approve</button>
+          </div>
+        </form>
+        <div id="send-row" class="row send-row" hidden>
+          <button type="button" class="btn btn-accent" id="send-api-btn">Send with API keys</button>
+        </div>
+        <pre id="packet" class="packet" hidden></pre>
+        <header class="panel-head sub">
+          <h2>Alerts</h2>
+          <span class="meta" id="alert-count">0 active</span>
+        </header>
+        <div id="gate-alerts" class="gate-alerts"></div>
+      </aside>
+    </div>
+
+    <!-- ANALYSIS -->
+    <div class="workspace tab-panel" data-panel="analysis" hidden>
+      <section class="panel report-full" id="report-shell">
+        <header class="report-head">
+          <div class="report-intro">
+            <span class="report-kicker">Research report</span>
+            <h2 id="report-title">—</h2>
+            <p id="report-headline" class="report-headline"></p>
+            <span class="meta" id="report-asof"></span>
+          </div>
+          <div class="report-score-box">
+            <div id="report-bias" class="bias-pill neutral">neutral</div>
+            <div class="score-row">
+              <span id="report-score" class="score-num tabular">0</span>
+              <span id="report-confidence" class="meta">—</span>
+            </div>
+            <div class="score-meter"><div id="report-score-bar" class="score-fill"></div></div>
+          </div>
+        </header>
+        <div class="report-grid">
+          <article class="report-card" id="report-technical"></article>
+          <article class="report-card" id="report-trend"></article>
+          <article class="report-card" id="report-news"></article>
+        </div>
+        <article class="panel analysis-pulse-panel" id="analysis-pulse-panel" hidden>
+          <header class="panel-head">
+            <h2>Web3 pulse</h2>
+            <span class="meta">web3.binance.com · live boards</span>
+          </header>
+          <div class="analysis-pulse-grid">
+            <div class="pulse-col">
+              <h4>Symbol hits</h4>
+              <div id="analysis-pulse-hits"></div>
+            </div>
+            <div class="pulse-col">
+              <h4>Trending top</h4>
+              <div id="analysis-pulse-trending"></div>
+            </div>
+            <div class="pulse-col">
+              <h4>Smart-money inflow</h4>
+              <div id="analysis-pulse-smart"></div>
+            </div>
+            <div class="pulse-col">
+              <h4>Macro sentiment</h4>
+              <div id="analysis-pulse-macro"></div>
+            </div>
+          </div>
+        </article>
+        <footer class="report-foot">
+          <div id="report-actions" class="report-actions"></div>
+          <p id="report-disclaimer" class="meta"></p>
+        </footer>
+        <div class="report-empty" id="report-empty">
+          <p>Run <strong>analyze BTCUSDT</strong> (or any symbol) to generate a full research report here.</p>
+        </div>
+      </section>
+    </div>
+
+    <!-- OPERATIONS -->
+    <div class="workspace tab-panel" data-panel="ops" hidden>
+      <section class="ops-grid">
+        <article class="panel span-2">
+          <header class="panel-head">
+            <h2>Mandate limits</h2>
+            <span class="meta">persisted to var/mandate.json</span>
+          </header>
+          <form id="mandate-form" class="mandate-form">
+            <div class="form-grid">
+              <label>Max notional / order (USDT)<input id="m-max-order" type="text" /></label>
+              <label>Max daily notional (USDT)<input id="m-max-daily" type="text" /></label>
+              <label>Max spread (bps)<input id="m-max-spread" type="text" /></label>
+              <label>Max price drift (bps)<input id="m-max-drift" type="text" /></label>
+              <label class="span-2">Symbol allowlist (comma-separated, empty = all)<input id="m-allowlist" type="text" placeholder="BTCUSDT,ETHUSDT" /></label>
+            </div>
+            <div class="row account-actions">
+              <button type="submit" class="btn btn-accent">Save mandate</button>
+              <span class="meta" id="mandate-save-msg"></span>
+            </div>
+          </form>
+          <div id="mandate-chart" class="mandate-chart-block"></div>
+        </article>
+
+        <article class="panel span-2">
+          <header class="panel-head">
+            <h2>Plan history</h2>
+            <span class="meta">last 100 plans</span>
+          </header>
+          <div id="plan-history" class="plan-history"></div>
+        </article>
+
+        <article class="panel">
+          <header class="panel-head">
+            <h2>Price alerts</h2>
+            <span class="meta">symbol triggers</span>
+          </header>
+          <form id="alert-ops-form" class="alert-ops-form">
+            <input id="alert-ops-symbol" placeholder="BTCUSDT" />
+            <input id="alert-ops-price" placeholder="Price" />
+            <select id="alert-ops-dir">
+              <option value="above">Above</option>
+              <option value="below">Below</option>
+            </select>
+            <button type="submit" class="btn btn-accent btn-sm">Add</button>
+          </form>
+          <div id="alert-ops-list" class="alert-ops-list"></div>
+        </article>
+
+        <article class="panel">
+          <header class="panel-head">
+            <h2>Account</h2>
+            <span class="meta">required for CLEAR</span>
+          </header>
+          <form id="account-form" class="account-form">
+            <div class="row">
+              <input id="bal-usdt" placeholder="USDT free" />
+              <input id="bal-base" placeholder="Base free" />
+            </div>
+            <div class="row account-actions">
+              <button type="submit" class="btn btn-accent">Attach</button>
+              <button type="button" class="btn btn-ghost" id="api-account-btn" hidden>Load API keys</button>
+              <button type="button" class="btn btn-ghost" id="clear-account-btn">Clear</button>
+            </div>
+          </form>
+        </article>
+
+        <article class="panel">
+          <header class="panel-head">
+            <h2>Audit mix</h2>
+            <span class="meta" id="audit-src">stamps</span>
+          </header>
+          <div id="audit-bars"></div>
+          <div id="audit-counts" class="audit-counts"></div>
+        </article>
+
+        <article class="panel">
+          <header class="panel-head">
+            <h2>Timeline</h2>
+            <span class="meta">classified orders</span>
+          </header>
+          <div id="audit-timeline" class="timeline-wrap"></div>
+        </article>
+
+        <article class="panel span-2">
+          <header class="panel-head">
+            <h2>Boot guards</h2>
+            <span class="meta">fail-closed</span>
+          </header>
+          <div id="boot-guards" class="boot-guards"></div>
+        </article>
+
+        <article class="panel">
+          <header class="panel-head">
+            <h2>Audit log</h2>
+          </header>
+          <div id="audit-events" class="receipts"></div>
+        </article>
+
+        <article class="panel">
+          <header class="panel-head">
+            <h2>Receipts</h2>
+            <span class="meta">hash chain</span>
+          </header>
+          <div id="receipts" class="receipts"></div>
+        </article>
+      </section>
+    </div>
+
+    <footer class="app-footer">
+      Live Binance public data only. No send until you type EXECUTE. Not financial advice.
+    </footer>
+    <script src="/app.js"></script>
+  </body>
+</html>

@@ -1,0 +1,13 @@
+{
+  "mcpServers": {
+    "binance": {
+      "url": "https://agent.binance.com/mcp/agentic",
+      "auth": {
+        "CLIENT_ID": "vscode"
+      }
+    },
+    "boss": {
+      "url": "http://127.0.0.1:8790/mcp"
+    }
+  }
+}

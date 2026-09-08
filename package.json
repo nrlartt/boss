@@ -1,0 +1,28 @@
+{
+  "name": "boss",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "BOSS — permission-first copilot for Binance. Observe live markets, draft an exact spot intent, run a fail-closed policy gate, then send only after you approve.",
+  "scripts": {
+    "dev": "tsx watch src/http/server.ts",
+    "start": "tsx src/http/server.ts",
+    "mcp": "tsx src/mcp/stdio.ts",
+    "test": "vitest run",
+    "typecheck": "tsc --noEmit"
+  },
+  "engines": {
+    "node": ">=22"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.18.2",
+    "decimal.js": "^10.6.0",
+    "zod": "^3.25.76"
+  },
+  "devDependencies": {
+    "@types/node": "^22.18.0",
+    "tsx": "^4.20.5",
+    "typescript": "^5.9.2",
+    "vitest": "^3.2.4"
+  }
+}
