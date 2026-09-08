@@ -185,6 +185,8 @@ function serveStatic(pathname: string, res: ServerResponse): void {
     relative = "/landing/index.html";
   } else if (pathname === "/app" || pathname === "/app/") {
     relative = "/index.html";
+  } else if (pathname === "/docs" || pathname === "/docs/") {
+    relative = "/docs/index.html";
   } else if (pathname.startsWith("/app/")) {
     relative = pathname.slice(4);
   }

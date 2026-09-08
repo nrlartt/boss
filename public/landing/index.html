@@ -25,7 +25,7 @@
           <a href="#architecture">Architecture</a>
           <a href="#safety">Safety</a>
           <a href="#connect">Connect</a>
-          <a href="#faq">FAQ</a>
+          <a href="/docs/">Docs</a>
         </nav>
         <div class="nav-cta">
           <a class="btn btn-ghost" href="https://github.com/nrlartt/boss" target="_blank" rel="noopener noreferrer">GitHub</a>
@@ -219,31 +219,6 @@
           </div>
         </div>
       </section>
-
-      <section class="section" id="faq">
-        <div class="wrap">
-          <div class="section-label">FAQ</div>
-          <h2>Questions judges ask</h2>
-          <div class="faq">
-            <details open>
-              <summary>Is the hosted URL using my balance?</summary>
-              <p>No. The public demo has no API keys. Anyone can analyze and plan; nobody can spend your Binance funds from the hosted instance.</p>
-            </details>
-            <details>
-              <summary>Is this live trading?</summary>
-              <p>Hosted mode is live market data with observe/plan only. Real sends happen through your own Agent OS connection or local desk with your keys — never on the public demo server.</p>
-            </details>
-            <details>
-              <summary>Why UNKNOWN so often?</summary>
-              <p>Missing account balances stay UNKNOWN on BALANCE_SUFFICIENT. BOSS never treats absent data as zero — attach balances and re-plan to reach CLEAR.</p>
-            </details>
-            <details>
-              <summary>How is BOSS different from a size cap?</summary>
-              <p>Caps check the order. BOSS checks the full permission path: policy matrix, EXECUTE token, HMAC stamp, and post-trade classification.</p>
-            </details>
-          </div>
-        </div>
-      </section>
     </main>
 
     <footer class="site-footer">
@@ -260,6 +235,7 @@
         </div>
         <div>
           <h4>Resources</h4>
+          <a href="/docs/">Documentation</a>
           <a href="https://github.com/nrlartt/boss" target="_blank" rel="noopener noreferrer">GitHub</a>
           <a href="https://www.binance.com/en/agent-os" target="_blank" rel="noopener noreferrer">Binance Agent OS</a>
           <a href="/api/health">Engine health</a>

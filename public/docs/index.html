@@ -1,0 +1,225 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="description" content="BOSS documentation — setup, hosted demo, safety model, FAQ." />
+    <title>BOSS docs</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="/landing/landing.css" />
+    <style>
+      .doc-layout {
+        display: grid;
+        grid-template-columns: 220px minmax(0, 1fr);
+        gap: 32px;
+        padding: 40px 0 72px;
+      }
+      .doc-nav {
+        position: sticky;
+        top: calc(var(--nav-h) + 16px);
+        align-self: start;
+        font-size: 13px;
+      }
+      .doc-nav a {
+        display: block;
+        color: var(--text2);
+        padding: 6px 0;
+      }
+      .doc-nav a:hover {
+        color: var(--yellow);
+      }
+      .doc-body h2 {
+        margin: 32px 0 12px;
+        font-size: 22px;
+      }
+      .doc-body h2:first-child {
+        margin-top: 0;
+      }
+      .doc-body p,
+      .doc-body li {
+        color: var(--text2);
+        font-size: 14px;
+      }
+      .doc-body ul {
+        padding-left: 18px;
+      }
+      .doc-body pre {
+        background: var(--card);
+        border: 1px solid var(--line);
+        border-radius: var(--radius);
+        padding: 14px;
+        overflow-x: auto;
+        font-size: 12px;
+      }
+      @media (max-width: 800px) {
+        .doc-layout {
+          grid-template-columns: 1fr;
+        }
+        .doc-nav {
+          position: static;
+          display: flex;
+          flex-wrap: wrap;
+          gap: 12px 16px;
+          padding-bottom: 16px;
+          border-bottom: 1px solid var(--line);
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <header class="site-nav">
+      <div class="wrap">
+        <a class="brand" href="/"><em>BOSS</em> Spot desk</a>
+        <nav class="nav-links">
+          <a href="/#how">How it works</a>
+          <a href="/#safety">Safety</a>
+          <a href="/#connect">Connect</a>
+          <a href="/docs/">Docs</a>
+        </nav>
+        <div class="nav-cta">
+          <a class="btn btn-ghost" href="https://github.com/nrlartt/boss" target="_blank" rel="noopener noreferrer">GitHub</a>
+          <a class="btn btn-primary" href="/app/">Launch app →</a>
+        </div>
+      </div>
+    </header>
+
+    <main class="wrap doc-layout">
+      <nav class="doc-nav" aria-label="Documentation">
+        <a href="#quick-start">Quick start</a>
+        <a href="#hosted-demo">Hosted demo</a>
+        <a href="#mcp-setup">MCP setup</a>
+        <a href="#safety">Safety model</a>
+        <a href="#faq">FAQ</a>
+      </nav>
+
+      <article class="doc-body">
+        <div class="section-label">Documentation</div>
+        <h1 style="margin: 0 0 8px; font-size: 32px; letter-spacing: -0.02em">BOSS docs</h1>
+        <p style="color: var(--text2); margin: 0 0 24px">
+          Permission-first Binance Spot copilot for Agent OS. English only.
+        </p>
+
+        <h2 id="quick-start">Quick start (local)</h2>
+        <pre><code>git clone https://github.com/nrlartt/boss.git
+cd boss
+npm install
+npm test
+npm start</code></pre>
+        <ul>
+          <li>Desk: <code>http://127.0.0.1:8790/app/</code></li>
+          <li>MCP: <code>http://127.0.0.1:8790/mcp</code></li>
+          <li>Copy <code>.env.example</code> → <code>.env</code> only if you need local API keys</li>
+        </ul>
+
+        <h2 id="hosted-demo">Hosted demo</h2>
+        <p>
+          The public Railway instance runs without Binance API keys. Anyone can <strong>observe</strong> and
+          <strong>plan</strong>; nobody can spend your balance from the hosted URL.
+        </p>
+        <ul>
+          <li>Landing: site root</li>
+          <li>Live desk: <code>/app/</code></li>
+          <li>Health: <code>/api/health</code></li>
+          <li>Market data via Binance public vision API on cloud hosts</li>
+        </ul>
+
+        <h2 id="mcp-setup">MCP setup</h2>
+        <p>Run BOSS next to the official Binance Agent OS MCP:</p>
+        <pre><code id="docs-mcp-snippet">{
+  "mcpServers": {
+    "binance": { "url": "https://agent.binance.com/mcp/agentic" },
+    "boss": { "url": "http://127.0.0.1:8790/mcp" }
+  }
+}</code></pre>
+        <p>On the hosted site, replace the BOSS URL with <code>&lt;your-origin&gt;/mcp</code>.</p>
+
+        <h2 id="safety">Safety model</h2>
+        <table>
+          <thead>
+            <tr><th>Verdict</th><th>Meaning</th></tr>
+          </thead>
+          <tbody>
+            <tr><td class="verdict-block"><strong>BLOCK</strong></td><td>Hard rule failed. No approval, no send.</td></tr>
+            <tr><td class="verdict-unknown"><strong>UNKNOWN</strong></td><td>Missing required fact (usually balances). Plan OK; send refused.</td></tr>
+            <tr><td class="verdict-clear"><strong>CLEAR</strong></td><td>Gate open — still requires typing EXECUTE.</td></tr>
+          </tbody>
+        </table>
+        <p style="margin-top: 16px">
+          Approved orders carry an HMAC <code>newClientOrderId</code> stamp. FOREIGN / FORGED / MISMATCHED classifications
+          burn trade scope until restored from the desk.
+        </p>
+
+        <h2 id="faq">FAQ</h2>
+        <div class="faq">
+          <details open>
+            <summary>Is the hosted URL using my balance?</summary>
+            <p>
+              No. The public demo has no API keys. Anyone can analyze and plan; nobody can spend your Binance funds from
+              the hosted instance.
+            </p>
+          </details>
+          <details>
+            <summary>Is this live trading?</summary>
+            <p>
+              Hosted mode is live market data with observe/plan only. Real sends happen through your own Agent OS
+              connection or a local desk with your keys — never on the public demo server.
+            </p>
+          </details>
+          <details>
+            <summary>Why UNKNOWN so often?</summary>
+            <p>
+              Missing account balances stay UNKNOWN on <code>BALANCE_SUFFICIENT</code>. BOSS never treats absent data as
+              zero — attach balances and re-plan to reach CLEAR.
+            </p>
+          </details>
+          <details>
+            <summary>How is BOSS different from a size cap?</summary>
+            <p>
+              Caps check the order. BOSS checks the full permission path: policy matrix, EXECUTE token, HMAC stamp, and
+              post-trade classification.
+            </p>
+          </details>
+          <details>
+            <summary>Can I connect Cursor to the hosted MCP?</summary>
+            <p>
+              Yes — use <code>https://&lt;your-railway-host&gt;/mcp</code>. The hosted session is shared and
+              read/plan-only; use a local BOSS instance for private trading workflows.
+            </p>
+          </details>
+        </div>
+      </article>
+    </main>
+
+    <footer class="site-footer">
+      <div class="wrap">
+        <a href="/">← Back to home</a>
+        ·
+        <a href="https://github.com/nrlartt/boss" target="_blank" rel="noopener noreferrer">GitHub</a>
+      </div>
+    </footer>
+    <script>
+      fetch("/api/health")
+        .then((r) => r.json())
+        .then((data) => {
+          const el = document.getElementById("docs-mcp-snippet");
+          if (!el || !data.mcp) return;
+          el.textContent = JSON.stringify(
+            {
+              mcpServers: {
+                binance: { url: "https://agent.binance.com/mcp/agentic" },
+                boss: { url: data.mcp },
+              },
+            },
+            null,
+            2,
+          );
+        })
+        .catch(() => {});
+    </script>
+  </body>
+</html>
