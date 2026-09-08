@@ -323,6 +323,14 @@ async function refreshSession() {
   if (!session.account) {
     pill.textContent = "account absent";
     pill.className = "pill";
+    if (session.directApi) {
+      try {
+        await api("/api/account/api", { method: "POST", body: "{}" });
+        return refreshSession();
+      } catch {
+        /* API keys configured but account fetch failed */
+      }
+    }
   } else {
     pill.textContent = `${session.account.mode} ${session.accountSummary.assets.join(" ")}`;
     pill.className = "pill ok";
@@ -797,7 +805,7 @@ function renderPlan(plan) {
     <div>${plan.order.type}${plan.order.price ? ` @ ${plan.order.price}` : " (market)"} · notional ${plan.order.notional}</div>
     <div>hash ${plan.planHash.slice(0, 16)}… · ${plan.id}</div>
     <div>${plan.notes[0] ?? ""}</div>
-    ${v === "UNKNOWN" ? "<div>Attach free balances, then run the same plan again.</div>" : ""}
+    ${v === "UNKNOWN" ? "<div>Attach free USDT (for buys) or base asset (for sells), then run the same plan again.</div>" : ""}
     ${v === "BLOCK" ? "<div>A hard rule failed. Change size, symbol, or the mandate.</div>" : ""}
   `;
   $("rules").innerHTML = plan.policy.rules

@@ -70,4 +70,32 @@ describe("planner", () => {
     expect(Number(plan.order.notional)).toBeGreaterThanOrEqual(5);
     expect(plan.policy.verdict).toBe("UNKNOWN");
   });
+
+  it("bumps a 5 USDT ETH buy above minNotional after lot rounding", () => {
+    const ethObs: Observation = {
+      ...observation,
+      symbol: "ETHUSDT",
+      last: "2485.06",
+      bid: "2485.05",
+      ask: "2485.06",
+      filters: {
+        ...observation.filters,
+        baseAsset: "ETH",
+        tickSize: "0.01",
+        stepSize: "0.0001",
+        minNotional: "5",
+      },
+    };
+    const plan = buildPlan({
+      intent: parseCommand("plan buy 5 usdt ETHUSDT"),
+      observation: ethObs,
+      signals,
+      account: null,
+      mandate: DEFAULT_MANDATE,
+      dailyNotional: "0",
+    });
+    expect(Number(plan.order.notional)).toBeGreaterThanOrEqual(5);
+    const minNotionalRule = plan.policy.rules.find((row) => row.id === "MIN_NOTIONAL");
+    expect(minNotionalRule?.status).toBe("PASS");
+  });
 });

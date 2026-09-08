@@ -196,7 +196,13 @@ function balance(
   const asset = order.side === "BUY" ? obs.filters.quoteAsset : obs.filters.baseAsset;
   const need = order.side === "BUY" ? D(order.notional).times("1.001") : D(order.quantity);
   const row = account.balances.find((b) => b.asset === asset);
-  const free = D(row?.free ?? 0);
+  if (!row) {
+    return unknown(
+      "BALANCE_SUFFICIENT",
+      `${asset} balance missing from snapshot. Attach ${asset} free balance or load API keys.`,
+    );
+  }
+  const free = D(row.free ?? 0);
   return free.gte(need)
     ? pass(
         "BALANCE_SUFFICIENT",

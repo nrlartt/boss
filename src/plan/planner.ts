@@ -20,6 +20,7 @@ export function buildPlan(input: {
   const side = input.intent.side;
   const type = input.intent.orderType;
   const filters = input.observation.filters;
+  const minNot = D(filters.minNotional);
   const limitPrice =
     type === "MARKET"
       ? null
@@ -29,14 +30,17 @@ export function buildPlan(input: {
           side,
         );
 
-  const ref = D(limitPrice ?? input.observation.ask);
-  if (ref.lte(0)) throw new BossError("PRICE", "Reference price is not usable.");
+  const notionalPrice =
+    type === "MARKET"
+      ? D(side === "BUY" ? input.observation.ask : input.observation.bid)
+      : D(limitPrice!);
+  if (notionalPrice.lte(0)) throw new BossError("PRICE", "Reference price is not usable.");
 
   let quantity: ReturnType<typeof D>;
   if (input.intent.baseQty) {
     quantity = alignDown(input.intent.baseQty, filters.stepSize);
   } else if (input.intent.quoteQty) {
-    quantity = alignDown(D(input.intent.quoteQty).div(ref), filters.stepSize);
+    quantity = alignDown(D(input.intent.quoteQty).div(notionalPrice), filters.stepSize);
   } else {
     throw new BossError(
       "SIZE",
@@ -48,7 +52,9 @@ export function buildPlan(input: {
     throw new BossError("SIZE", "Aligned quantity rounded to zero. Increase the size.");
   }
 
-  const notional = asFixed(quantity.times(ref).toDecimalPlaces(8));
+  quantity = ensureMinNotionalQuantity(quantity, notionalPrice, minNot, filters.stepSize);
+
+  const notional = asFixed(quantity.times(notionalPrice).toDecimalPlaces(8));
   const order: Plan["order"] = {
     symbol: input.observation.symbol,
     side,
@@ -99,6 +105,26 @@ export function buildPlan(input: {
 
 function alignPrice(price: string, tick: string, side: "BUY" | "SELL"): string {
   return asFixed(side === "BUY" ? alignDown(price, tick) : alignUp(price, tick));
+}
+
+function ensureMinNotionalQuantity(
+  quantity: ReturnType<typeof D>,
+  price: ReturnType<typeof D>,
+  minNotional: ReturnType<typeof D>,
+  stepSize: string,
+): ReturnType<typeof D> {
+  let qty = quantity;
+  let guard = 0;
+  while (qty.times(price).lt(minNotional) && guard++ < 10_000) {
+    qty = alignUp(minNotional.div(price), stepSize);
+    if (qty.lte(quantity)) {
+      qty = alignUp(quantity.plus(stepSize), stepSize);
+    }
+  }
+  if (qty.times(price).lt(minNotional)) {
+    throw new BossError("SIZE", `Cannot reach minNotional ${asFixed(minNotional)} at price ${asFixed(price)}.`);
+  }
+  return qty;
 }
 
 function buildNotes(input: {

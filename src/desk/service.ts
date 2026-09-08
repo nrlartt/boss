@@ -182,13 +182,25 @@ export async function observe(symbol: string): Promise<{
   return { observation, signals, account: currentAccount() };
 }
 
+async function accountForPlan(): Promise<AccountSnapshot | null> {
+  if (hasDirectApiKeys()) {
+    try {
+      return await refreshAccountFromApi();
+    } catch {
+      return currentAccount();
+    }
+  }
+  return currentAccount();
+}
+
 export async function runCommand(command: string) {
   const intent = parseCommand(command);
   if (intent.action === "observe") {
     const payload = await analyze(intent.symbol);
     return { kind: "observe" as const, intent, ...payload };
   }
-  const { observation, signals, account } = await observe(intent.symbol);
+  const { observation, signals } = await observe(intent.symbol);
+  const account = await accountForPlan();
   const plan = putPlan(
     buildPlan({
       intent,
