@@ -121,10 +121,14 @@ async function liveGuard(): Promise<BootGuard> {
     const last = rows[0]?.lastPrice ?? "?";
     return pass("publicFeed", `Binance public Spot reachable, BTCUSDT last ${last}.`);
   } catch (error) {
-    return fail(
-      "publicFeed",
-      `Public market data unreachable: ${error instanceof Error ? error.message : String(error)}`,
-    );
+    const detail = `Public market data unreachable: ${error instanceof Error ? error.message : String(error)}`;
+    if (config.hosted) {
+      return warn(
+        "publicFeed",
+        `${detail} Hosted desk will keep running; REST polling uses ${config.binanceSpotBase}.`,
+      );
+    }
+    return fail("publicFeed", detail);
   }
 }
 

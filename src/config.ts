@@ -31,6 +31,16 @@ function publicBaseUrl(): string {
   return "";
 }
 
+function binanceSpotBase(): string {
+  const fromEnv = process.env.BINANCE_SPOT_BASE?.trim();
+  if (fromEnv) return fromEnv.replace(/\/$/, "");
+  const hosted =
+    process.env.BOSS_HOSTED === "1" ||
+    Boolean(process.env.RAILWAY_ENVIRONMENT || process.env.RAILWAY_PUBLIC_DOMAIN);
+  if (hosted) return "https://data-api.binance.vision";
+  return "https://api.binance.com";
+}
+
 export const config = {
   port: Number(process.env.PORT ?? 8790),
   host: process.env.BOSS_HOST?.trim() || (process.env.PORT ? "0.0.0.0" : "127.0.0.1"),
@@ -39,10 +49,7 @@ export const config = {
     process.env.BOSS_HOSTED === "1" ||
     Boolean(process.env.RAILWAY_ENVIRONMENT || process.env.RAILWAY_PUBLIC_DOMAIN),
   dataDir: path.resolve(process.cwd(), process.env.BOSS_DATA_DIR ?? "var"),
-  binanceSpotBase: (process.env.BINANCE_SPOT_BASE ?? "https://api.binance.com").replace(
-    /\/$/,
-    "",
-  ),
+  binanceSpotBase: binanceSpotBase(),
   apiKey: process.env.BINANCE_API_KEY?.trim() || "",
   apiSecret: process.env.BINANCE_SECRET_KEY?.trim() || "",
   apiEnv: (process.env.BINANCE_API_ENV ?? "mainnet").trim(),

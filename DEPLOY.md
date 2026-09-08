@@ -21,6 +21,7 @@ No Binance API keys are required for the public demo. The hosted instance:
 | Variable | Purpose |
 |---|---|
 | `BOSS_HOSTED=1` | Force hosted banner (auto-set on Railway) |
+| `BINANCE_SPOT_BASE` | Defaults to `https://data-api.binance.vision` on Railway |
 | `BOSS_PUBLIC_URL` | Override public base URL for MCP links |
 | `BOSS_HMAC_SECRET` | Stable order stamps across redeploys (optional) |
 
