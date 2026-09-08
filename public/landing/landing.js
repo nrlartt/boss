@@ -19,12 +19,30 @@ async function refreshLiveStrip() {
     if (meta) meta.textContent = `Binance Spot · ${data.engine ?? "live"} · no keys on server`;
     if (btc && last) btc.textContent = `BTC ${Number(last).toLocaleString("en-US", { maximumFractionDigits: 0 })}`;
     if (latency) latency.textContent = `${data.binanceSpot.latencyMs ?? "—"} ms`;
+    renderMcpSnippet(data.mcp, data.hosted);
     runTerminalDemo(last);
   } catch (error) {
     dot?.classList.add("off");
     if (status) status.textContent = "Engine checking…";
     if (meta) meta.textContent = String(error.message || error);
   }
+}
+
+function renderMcpSnippet(bossUrl, hosted) {
+  const el = document.getElementById("mcp-snippet");
+  if (!el) return;
+  const boss = bossUrl || (hosted ? `${location.origin}/mcp` : "http://127.0.0.1:8790/mcp");
+  const note = hosted
+    ? "// Hosted — use this URL in Cursor MCP settings"
+    : "// Local — npm start, then use this URL";
+  el.textContent = `${note}
+// .cursor/mcp.json
+{
+  "mcpServers": {
+    "binance": { "url": "https://agent.binance.com/mcp/agentic" },
+    "boss": { "url": "${boss}" }
+  }
+}`;
 }
 
 function runTerminalDemo(btcLast) {
@@ -46,4 +64,5 @@ function runTerminalDemo(btcLast) {
 }
 
 refreshLiveStrip();
+renderMcpSnippet(null, location.hostname !== "127.0.0.1" && location.hostname !== "localhost");
 setInterval(refreshLiveStrip, 8000);

@@ -196,15 +196,12 @@
         <div class="wrap">
           <div class="section-label">Connect your agent</div>
           <h2>BOSS is an MCP server. Point any host at it.</h2>
-          <p class="section-lead">Start locally with <code>npm start</code>, or use the hosted desk for judges.</p>
+          <p class="section-lead">
+            Start locally with <code>npm start</code> (<code>127.0.0.1:8790/mcp</code>), or point Cursor at the hosted
+            MCP endpoint below.
+          </p>
           <div class="card" style="margin-bottom: 16px">
-            <pre style="margin: 0; overflow-x: auto; font-size: 12px"><code>// .cursor/mcp.json
-{
-  "mcpServers": {
-    "binance": { "url": "https://agent.binance.com/mcp/agentic" },
-    "boss": { "url": "http://127.0.0.1:8790/mcp" }
-  }
-}</code></pre>
+            <pre style="margin: 0; overflow-x: auto; font-size: 12px"><code id="mcp-snippet">// loading MCP config from /api/health…</code></pre>
           </div>
           <div class="tools-grid">
             <span class="tool read">boss_status</span>
