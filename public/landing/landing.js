@@ -15,8 +15,8 @@ async function refreshLiveStrip() {
     }
     dot?.classList.remove("off");
     const last = data.binanceSpot.sample?.last;
-    if (status) status.textContent = data.hosted ? "BOSS · live hosted desk" : "BOSS · engine connected";
-    if (meta) meta.textContent = `Binance Spot · ${data.engine ?? "live"} · no keys on server`;
+    if (status) status.textContent = data.hosted ? "BOSS · live desk" : "BOSS · engine connected";
+    if (meta) meta.textContent = `Binance Spot · ${data.binanceSpot.latencyMs ?? "—"} ms · mainnet feed`;
     if (btc && last) btc.textContent = `BTC ${Number(last).toLocaleString("en-US", { maximumFractionDigits: 0 })}`;
     if (latency) latency.textContent = `${data.binanceSpot.latencyMs ?? "—"} ms`;
     renderMcpSnippet(data.mcp, data.hosted);
@@ -59,8 +59,7 @@ function runTerminalDemo(btcLast) {
 <div class="out">→ verdict CLEAR · notional 50.00 USDT · lot aligned</div>
 <div><span class="prompt">$</span> <span class="cmd">EXECUTE</span></div>
 <div class="out">→ approval token minted (60s, single-use)</div>
-<div class="warn">→ Agent OS sends packet.params unchanged · stamp boss_*</div>
-<div class="out">→ hosted demo: observe + plan only · no API keys on server</div>`;
+<div class="out">→ Agent OS sends packet.params unchanged · stamp boss_*</div>`;
 }
 
 refreshLiveStrip();
