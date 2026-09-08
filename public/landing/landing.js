@@ -53,10 +53,10 @@ function runTerminalDemo(btcLast) {
 <div><span class="prompt">$</span> <span class="cmd">analyze BTCUSDT</span></div>
 <div class="out">→ observation BTCUSDT last ${last}</div>
 <div class="out">→ Web3 pulse + Fear &amp; Greed + RSS headlines</div>
-<div><span class="prompt">$</span> <span class="cmd">plan buy 50 usdt BTCUSDT</span></div>
+<div><span class="prompt">$</span> <span class="cmd">plan buy 5 usdt BTCUSDT</span></div>
 <div class="warn">→ verdict UNKNOWN · BALANCE_SUFFICIENT needs account</div>
 <div><span class="prompt">$</span> <span class="cmd">boss_attach_account · re-plan</span></div>
-<div class="out">→ verdict CLEAR · notional 50.00 USDT · lot aligned</div>
+<div class="out">→ verdict CLEAR · notional 5.00 USDT · lot aligned</div>
 <div><span class="prompt">$</span> <span class="cmd">EXECUTE</span></div>
 <div class="out">→ approval token minted (60s, single-use)</div>
 <div class="out">→ Agent OS sends packet.params unchanged · stamp boss_*</div>`;

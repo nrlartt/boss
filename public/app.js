@@ -132,7 +132,7 @@ function renderGateSignals(data) {
     </section>
     <div class="gate-signal-actions">
       <button type="button" class="btn btn-ghost btn-sm" data-cmd="analyze ${data.symbol}">Full report</button>
-      <button type="button" class="btn btn-ghost btn-sm" data-cmd="plan buy 50 usdt ${data.symbol}">Plan buy 50</button>
+      <button type="button" class="btn btn-ghost btn-sm" data-cmd="plan buy 5 usdt ${data.symbol}">Plan buy 5</button>
     </div>
   `;
 
@@ -428,8 +428,8 @@ function filterTape() {
 }
 
 function renderTapeRows(rows, source, sparks) {
+  void source;
   if (sparks) state.sparks = { ...state.sparks, ...sparks };
-  $("tape-src").textContent = source || "binance-spot-ws";
   $("tape").innerHTML = rows
     .map(
       (row) => `
@@ -458,7 +458,8 @@ async function refreshTape() {
 function applyQuote(quote) {
   if (!quote || quote.symbol !== state.symbol) return;
   $("market-title").textContent = quote.symbol;
-  $("market-age").textContent = `${quote.asOf} · ${quote.source}`;
+  const tickAt = quote.asOf ? `${quote.asOf.slice(11, 19)} UTC` : "live";
+  $("market-age").textContent = tickAt;
   $("quote").innerHTML = `
     <div class="last-row">
       <div class="last">${fmt(quote.last, 2)}</div>
@@ -712,7 +713,7 @@ async function refreshPlans() {
     : `<div class="meta" style="padding:14px">No plans yet. Run plan buy … from the command bar.</div>`;
   for (const btn of el.querySelectorAll("[data-replan]")) {
     btn.addEventListener("click", () => {
-      const cmd = `plan buy 50 usdt ${btn.dataset.replan}`;
+      const cmd = `plan buy 5 usdt ${btn.dataset.replan}`;
       $("command").value = cmd;
       void runCommand(cmd);
     });

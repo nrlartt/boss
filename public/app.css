@@ -19,7 +19,7 @@
   --warn: #f0b90b;
   --radius: 4px;
   --header-h: 56px;
-  --quick-h: 40px;
+  --quick-h: 76px;
   --sidebar-w: 220px;
   --gate-w: 300px;
 }
@@ -154,8 +154,8 @@ body {
 .quick-bar {
   display: flex;
   align-items: center;
-  height: var(--quick-h);
-  padding: 0 16px;
+  min-height: var(--quick-h);
+  padding: 8px 16px;
   background: var(--bg);
   border-bottom: 1px solid var(--line);
 }

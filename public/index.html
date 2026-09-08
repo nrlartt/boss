@@ -37,7 +37,7 @@
           name="command"
           autocomplete="off"
           spellcheck="false"
-          placeholder="analyze BTCUSDT · plan buy 50 usdt BTCUSDT"
+          placeholder="analyze BTCUSDT · plan buy 5 usdt BTCUSDT"
         />
         <button type="submit" class="btn btn-accent">Run</button>
       </form>
@@ -55,8 +55,16 @@
       <div class="chips">
         <button type="button" data-cmd="analyze BTCUSDT">Analyze BTC</button>
         <button type="button" data-cmd="analyze ETHUSDT">Analyze ETH</button>
-        <button type="button" data-cmd="plan buy 50 usdt BTCUSDT">Plan buy 50 USDT</button>
+        <button type="button" data-cmd="analyze SOLUSDT">Analyze SOL</button>
+        <button type="button" data-cmd="analyze BNBUSDT">Analyze BNB</button>
+        <button type="button" data-cmd="analyze XRPUSDT">Analyze XRP</button>
+        <button type="button" data-cmd="analyze DOGEUSDT">Analyze DOGE</button>
+        <button type="button" data-cmd="analyze AVAXUSDT">Analyze AVAX</button>
+        <button type="button" data-cmd="analyze LINKUSDT">Analyze LINK</button>
+        <button type="button" data-cmd="plan buy 5 usdt BTCUSDT">Plan buy 5 USDT</button>
+        <button type="button" data-cmd="plan buy 5 usdt ETHUSDT">Plan buy 5 ETH</button>
         <button type="button" data-cmd="plan sell 0.01 BTCUSDT">Plan sell 0.01 BTC</button>
+        <button type="button" data-cmd="plan sell 0.1 ETHUSDT">Plan sell 0.1 ETH</button>
       </div>
     </div>
 
@@ -80,7 +88,6 @@
           <h2>Markets</h2>
           <div class="panel-head-actions">
             <button type="button" class="btn btn-ghost btn-sm" id="tape-collapse-btn" title="Collapse markets list">◀</button>
-            <span class="meta" id="tape-src">binance-spot-ws</span>
           </div>
         </header>
         <div class="tape-search-wrap">

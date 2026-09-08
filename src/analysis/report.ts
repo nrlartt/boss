@@ -78,7 +78,7 @@ export async function buildAnalysisReport(input: {
   const headline = buildHeadline(observation.symbol, bias, technical.trendLabel, research.news.length);
 
   const actions = [
-    `plan buy 50 usdt ${observation.symbol}`,
+    `plan buy 5 usdt ${observation.symbol}`,
     `plan sell 0.01 ${observation.symbol.replace(/USDT$/i, "")}`,
     "Attach balances or Load API keys before expecting CLEAR.",
   ];
