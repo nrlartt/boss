@@ -120,6 +120,10 @@ async function api(req: IncomingMessage, res: ServerResponse, url: URL): Promise
     const symbol = url.searchParams.get("symbol") ?? "BTCUSDT";
     return json(res, await desk.observe(symbol));
   }
+  if (method === "GET" && p === "/api/signals") {
+    const symbol = url.searchParams.get("symbol") ?? "BTCUSDT";
+    return json(res, await desk.gateSignals(symbol));
+  }
   if (method === "PUT" && p === "/api/mandate") {
     const body = (await readJson(req)) as Mandate;
     return json(res, saveMandate({ ...loadMandate(), ...body, version: 1, product: "SPOT" }));
@@ -182,16 +186,19 @@ async function api(req: IncomingMessage, res: ServerResponse, url: URL): Promise
 function serveStatic(pathname: string, res: ServerResponse): void {
   let relative = pathname;
   if (pathname === "/" || pathname === "") {
-    relative = "/landing/index.html";
+    relative = "landing/index.html";
   } else if (pathname === "/app" || pathname === "/app/") {
-    relative = "/index.html";
+    relative = "index.html";
   } else if (pathname === "/docs" || pathname === "/docs/") {
-    relative = "/docs/index.html";
+    relative = "docs/index.html";
   } else if (pathname.startsWith("/app/")) {
-    relative = pathname.slice(4);
+    relative = pathname.slice(5);
+  } else {
+    relative = pathname.replace(/^\/+/, "");
   }
-  const file = path.normalize(path.join(publicDir, relative === "/" ? "/landing/index.html" : relative));
-  if (!file.startsWith(publicDir) || !existsSync(file)) {
+  const file = path.normalize(path.join(publicDir, relative));
+  const rootNorm = path.normalize(publicDir + path.sep);
+  if (!file.startsWith(rootNorm) || !existsSync(file)) {
     json(res, { error: { code: "NOT_FOUND", message: "Not found" } }, 404);
     return;
   }

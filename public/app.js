@@ -58,6 +58,129 @@ function renderPulseRows(rows, emptyText) {
     .join("");
 }
 
+function setGateMode(mode) {
+  const signals = $("gate-signals");
+  const idle = $("gate-idle");
+  if (mode === "plan") {
+    if (signals) signals.hidden = true;
+    if (idle) idle.hidden = true;
+  } else {
+    if (signals) signals.hidden = false;
+    if (idle) idle.hidden = true;
+    $("verdict").textContent = "signals";
+    $("verdict").className = "meta verdict-tag verdict-CLEAR";
+  }
+}
+
+function renderGateMoverRows(rows, kind) {
+  if (!rows?.length) return `<p class="meta">No ${kind} on tape.</p>`;
+  return rows
+    .map(
+      (row) => `
+      <button type="button" class="signal-row signal-pick" data-pick-symbol="${row.symbol}">
+        <span><b>${row.symbol.replace("USDT", "")}</b></span>
+        <span class="${clsChange(row.changePct)}">${Number(row.changePct).toFixed(2)}%</span>
+      </button>`,
+    )
+    .join("");
+}
+
+function renderGateSignals(data) {
+  const el = $("gate-signals");
+  if (!el || state.planId) return;
+  const hits = data.signals?.symbolHits ?? {};
+  const base = data.base ?? data.symbol.replace(/USDT|USDC|FDUSD$/i, "");
+  const macro = data.macro ?? {};
+  const trending = data.signals?.trending ?? [];
+  const smartMoney = data.signals?.smartMoney ?? [];
+  const asOf = data.asOf?.slice(11, 19) ?? "—";
+
+  el.innerHTML = `
+    <section class="gate-signal-block">
+      <header class="gate-signal-head">
+        <h3>${base} scan</h3>
+        <span class="meta">${asOf} UTC</span>
+      </header>
+      <div class="signal-row"><span>Web3 trending board</span><span class="${hits.trending ? "up" : "dn"}">${hits.trending ? `${hits.trending.symbol} · ${hits.trending.extra}` : "not listed"}</span></div>
+      <div class="signal-row"><span>Smart-money inflow</span><span class="${hits.smartMoney ? "up" : "dn"}">${hits.smartMoney ? `${hits.smartMoney.symbol} · ${hits.smartMoney.extra}` : "not listed"}</span></div>
+      <div class="signal-row"><span>Fear & Greed</span><span>${macro.fearGreed ?? "n/a"} ${macro.fearGreedLabel ?? ""}</span></div>
+      <div class="signal-row"><span>CoinGecko trending</span><span class="${macro.coingeckoTrending ? "up" : "dn"}">${macro.coingeckoTrending ? "yes" : "no"}</span></div>
+      ${macro.summary ? `<p class="gate-signal-note">${macro.summary}</p>` : ""}
+    </section>
+    <section class="gate-signal-block">
+      <header class="gate-signal-head"><h3>Web3 trending</h3><span class="meta">BSC 24h</span></header>
+      ${trending.length ? trending.slice(0, 5).map((row) => `
+        <button type="button" class="signal-row signal-pick" data-pick-symbol="${row.symbol}USDT">
+          <span><b>${row.symbol}</b> ${row.extra ?? ""}</span>
+          <span class="${clsChange(row.changePct)}">${row.changePct ? `${Number(row.changePct).toFixed(2)}%` : "—"}</span>
+        </button>`).join("") : `<p class="meta">Trending board empty.</p>`}
+    </section>
+    <section class="gate-signal-block">
+      <header class="gate-signal-head"><h3>Smart-money inflow</h3><span class="meta">24h</span></header>
+      ${smartMoney.length ? smartMoney.slice(0, 5).map((row) => `
+        <button type="button" class="signal-row signal-pick" data-pick-symbol="${row.symbol}USDT">
+          <span><b>${row.symbol}</b> ${row.extra ?? ""}</span>
+          <span class="${clsChange(row.changePct)}">${row.changePct ? `${Number(row.changePct).toFixed(2)}%` : "—"}</span>
+        </button>`).join("") : `<p class="meta">Inflow board empty.</p>`}
+    </section>
+    <section class="gate-signal-block">
+      <header class="gate-signal-head"><h3>Tape movers</h3><span class="meta">Spot 24h</span></header>
+      <p class="gate-signal-label">Top gainers</p>
+      ${renderGateMoverRows(data.tapeMovers?.gainers, "gainers")}
+      <p class="gate-signal-label">Top losers</p>
+      ${renderGateMoverRows(data.tapeMovers?.losers, "losers")}
+    </section>
+    <div class="gate-signal-actions">
+      <button type="button" class="btn btn-ghost btn-sm" data-cmd="analyze ${data.symbol}">Full report</button>
+      <button type="button" class="btn btn-ghost btn-sm" data-cmd="plan buy 50 usdt ${data.symbol}">Plan buy 50</button>
+    </div>
+  `;
+
+  for (const btn of el.querySelectorAll("[data-pick-symbol]")) {
+    btn.addEventListener("click", () => {
+      void selectMarketSymbol(btn.dataset.pickSymbol);
+    });
+  }
+  for (const btn of el.querySelectorAll("[data-cmd]")) {
+    btn.addEventListener("click", () => {
+      $("command").value = btn.dataset.cmd;
+      void runCommand(btn.dataset.cmd);
+    });
+  }
+}
+
+async function refreshGateSignals() {
+  if (state.planId) return;
+  try {
+    const data = await api(`/api/signals?symbol=${encodeURIComponent(state.symbol)}`);
+    renderGateSignals(data);
+  } catch (error) {
+    const el = $("gate-signals");
+    if (el && !state.planId) {
+      el.innerHTML = `<p class="meta gate-loading">${error.message}</p>`;
+    }
+  }
+}
+
+async function selectMarketSymbol(symbol) {
+  const sym = symbol.toUpperCase();
+  if (!sym.endsWith("USDT")) return;
+  state.symbol = sym;
+  $("command").value = `analyze ${sym}`;
+  for (const row of $("tape").querySelectorAll(".tape-row")) {
+    row.classList.toggle("active", row.dataset.symbol === sym);
+  }
+  connectLive(sym);
+  void loadCandles(sym, state.chartTf);
+  void refreshGateSignals();
+  try {
+    const data = await api(`/api/observe?symbol=${encodeURIComponent(sym)}`);
+    renderObservation(data.observation, data.signals);
+  } catch {
+    /* quote will arrive via live stream */
+  }
+}
+
 function renderWeb3Pulse(pulse) {
   const panel = $("analysis-pulse-panel");
   if (!panel) return;
@@ -564,6 +687,7 @@ function renderObservation(observation, signals) {
   });
   if (symbolChanged || !state.live) connectLive(observation.symbol);
   if (symbolChanged) void loadCandles(observation.symbol, state.chartTf);
+  if (symbolChanged && !state.planId) void refreshGateSignals();
   void signals;
 }
 
@@ -663,8 +787,7 @@ function renderPlan(plan) {
   switchTab("market");
   state.planId = plan.id;
   state.approvalId = null;
-  const idle = $("gate-idle");
-  if (idle) idle.hidden = true;
+  setGateMode("plan");
   const v = plan.policy.verdict;
   $("verdict").textContent = v;
   $("verdict").className = `meta verdict-tag verdict-${v}`;
@@ -700,11 +823,10 @@ async function runCommand(command) {
   });
   if (result.kind === "observe") {
     state.planId = null;
+    setGateMode("signals");
     $("approve-form").hidden = true;
     $("send-row").hidden = true;
     $("packet").hidden = true;
-    const idle = $("gate-idle");
-    if (idle) idle.hidden = false;
     $("verdict").textContent = "report";
     $("verdict").className = "meta verdict-tag verdict-CLEAR";
     switchTab("analysis");
@@ -713,6 +835,7 @@ async function runCommand(command) {
     $("gate-mix").innerHTML = "";
     renderObservation(result.observation, result.signals);
     if (result.analysis) renderAnalysis(result.analysis);
+    void refreshGateSignals();
   } else {
     renderObservation(result.plan.observation, result.plan.signals);
     renderPlan(result.plan);
@@ -932,6 +1055,7 @@ void refreshReceipts();
 void refreshAudit();
 void refreshPlans();
 void refreshAlerts();
+void refreshGateSignals();
 void loadCandles(state.symbol, state.chartTf);
 void runCommand("analyze BTCUSDT").catch((error) => {
   $("plan").textContent = error.message;
@@ -942,6 +1066,9 @@ setInterval(() => {
   void refreshAudit();
   void refreshAlerts();
 }, 8000);
+setInterval(() => {
+  void refreshGateSignals();
+}, 90_000);
 setInterval(() => {
   void loadCandles(state.symbol, state.chartTf);
 }, 120_000);

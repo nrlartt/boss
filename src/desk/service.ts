@@ -6,6 +6,7 @@ import { mergeTapeSymbols } from "../market/symbols.ts";
 import { listPlans } from "./session.ts";
 import * as alerts from "./alerts.ts";
 import { buildAnalysisReport } from "../analysis/report.ts";
+import { fetchSocialPulse } from "../analysis/research.ts";
 import { fetchSignalBoard } from "../market/signals.ts";
 import { fetchApiAccount, placeSpotOrder } from "../market/signed.ts";
 import { buildPlan } from "../plan/planner.ts";
@@ -128,6 +129,27 @@ export async function tape() {
 
 export async function quote(symbol: string) {
   return fetchQuote(symbol);
+}
+
+export async function gateSignals(symbolRaw: string) {
+  const symbol = normalizeSymbol(symbolRaw);
+  const base = symbol.replace(/USDT|USDC|FDUSD$/i, "");
+  const [signals, macro, tapeData] = await Promise.all([
+    fetchSignalBoard(symbol),
+    fetchSocialPulse(base),
+    tape(),
+  ]);
+  const rows = [...tapeData.rows].sort((a, b) => Number(b.changePct) - Number(a.changePct));
+  const gainers = rows.filter((row) => Number(row.changePct) > 0).slice(0, 4);
+  const losers = rows.filter((row) => Number(row.changePct) < 0).slice(-4).reverse();
+  return {
+    asOf: new Date().toISOString(),
+    symbol,
+    base,
+    signals,
+    macro,
+    tapeMovers: { gainers, losers },
+  };
 }
 
 export async function analyze(symbol: string): Promise<{

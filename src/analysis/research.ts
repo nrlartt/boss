@@ -53,30 +53,7 @@ export async function fetchResearch(baseAsset: string): Promise<ResearchBundle> 
   return { asOf, news, social };
 }
 
-async function fetchNews(baseAsset: string): Promise<NewsItem[]> {
-  const terms = keywordsFor(baseAsset);
-  const googleQuery = encodeURIComponent(`${terms[0]} crypto`);
-  const googleUrl = `https://news.google.com/rss/search?q=${googleQuery}&hl=en-US&gl=US&ceid=US:en`;
-  const batches = await Promise.allSettled([
-    ...RSS_FEEDS.map((feed) => fetchRss(feed.name, feed.url, terms)),
-    fetchRss("Google News", googleUrl, terms),
-  ]);
-  const merged = batches
-    .flatMap((row) => (row.status === "fulfilled" ? row.value : []))
-    .sort((a, b) => Date.parse(b.publishedAt) - Date.parse(a.publishedAt));
-  const seen = new Set<string>();
-  const unique: NewsItem[] = [];
-  for (const item of merged) {
-    const key = item.title.toLowerCase();
-    if (seen.has(key)) continue;
-    seen.add(key);
-    unique.push(item);
-    if (unique.length >= 10) break;
-  }
-  return unique;
-}
-
-async function fetchSocialPulse(baseAsset: string): Promise<SocialPulse> {
+export async function fetchSocialPulse(baseAsset: string): Promise<SocialPulse> {
   const terms = keywordsFor(baseAsset);
   const [fng, googleNews, gecko, reddit] = await Promise.allSettled([
     fetchFearGreed(),
@@ -105,6 +82,29 @@ async function fetchSocialPulse(baseAsset: string): Promise<SocialPulse> {
     source: "alternative.me · Google News RSS · CoinGecko · Reddit RSS",
     summary: parts.length ? parts.join(" · ") : "Public sentiment feeds returned no extra signal.",
   };
+}
+
+async function fetchNews(baseAsset: string): Promise<NewsItem[]> {
+  const terms = keywordsFor(baseAsset);
+  const googleQuery = encodeURIComponent(`${terms[0]} crypto`);
+  const googleUrl = `https://news.google.com/rss/search?q=${googleQuery}&hl=en-US&gl=US&ceid=US:en`;
+  const batches = await Promise.allSettled([
+    ...RSS_FEEDS.map((feed) => fetchRss(feed.name, feed.url, terms)),
+    fetchRss("Google News", googleUrl, terms),
+  ]);
+  const merged = batches
+    .flatMap((row) => (row.status === "fulfilled" ? row.value : []))
+    .sort((a, b) => Date.parse(b.publishedAt) - Date.parse(a.publishedAt));
+  const seen = new Set<string>();
+  const unique: NewsItem[] = [];
+  for (const item of merged) {
+    const key = item.title.toLowerCase();
+    if (seen.has(key)) continue;
+    seen.add(key);
+    unique.push(item);
+    if (unique.length >= 10) break;
+  }
+  return unique;
 }
 
 async function fetchFearGreed(): Promise<{ value: number | null; label: string }> {
