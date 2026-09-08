@@ -151,9 +151,42 @@ async function refreshHealth() {
     }
     state.directApi = Boolean(health.directApi);
     $("api-account-btn").hidden = !state.directApi;
+    renderHostedBar(health);
   } catch (error) {
     $("health-pill").textContent = String(error.message);
     $("health-pill").className = "pill bad";
+    renderHostedBar(null);
+  }
+}
+
+function renderHostedBar(health) {
+  const bar = $("hosted-bar");
+  if (!bar) return;
+  const show = Boolean(health?.hosted) || location.hostname !== "127.0.0.1" && location.hostname !== "localhost";
+  bar.hidden = !show;
+  if (!show) return;
+  document.body.classList.add("hosted-mode");
+  const dot = $("engine-dot");
+  const status = $("hosted-status");
+  const meta = $("hosted-meta");
+  if (!health?.binanceSpot?.reachable) {
+    if (dot) dot.className = "live-dot off";
+    if (status) status.textContent = "Engine offline — Binance feed unreachable";
+    if (meta) meta.textContent = health?.binanceSpot?.error ?? "";
+    return;
+  }
+  if (dot) dot.className = "live-dot";
+  if (status) {
+    status.textContent = health.hosted
+      ? `LIVE · Binance Spot engine · ${health.engine ?? "live"}`
+      : "LIVE · local desk";
+  }
+  if (meta) {
+    const lat = health.binanceSpot.latencyMs;
+    const sample = health.binanceSpot.sample;
+    meta.textContent = sample
+      ? `BTC ${fmt(sample.last, 0)} · ${lat}ms · MCP ${health.mcp ?? ""}`
+      : `${lat}ms`;
   }
 }
 

@@ -652,6 +652,51 @@ body.burn-active .tab-panel.workspace.active[data-panel="market"] {
   display: none;
 }
 
+.hosted-bar {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+  padding: 8px 16px;
+  background: #0d1117;
+  border-bottom: 1px solid var(--line);
+  font-size: 12px;
+  color: var(--text2);
+}
+
+.hosted-bar[hidden] {
+  display: none;
+}
+
+.live-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--up);
+  box-shadow: 0 0 8px rgba(14, 203, 129, 0.6);
+  flex-shrink: 0;
+}
+
+.live-dot.off {
+  background: var(--down);
+  box-shadow: none;
+}
+
+.hosted-meta {
+  color: var(--text3);
+  margin-left: auto;
+}
+
+.hosted-link {
+  color: var(--yellow);
+  font-weight: 600;
+}
+
+body.hosted-mode .tab-panel.workspace.active[data-panel="market"] {
+  height: calc(100vh - var(--header-h) - var(--quick-h) - var(--banner-h, 0px) - 36px);
+  max-height: calc(100vh - var(--header-h) - var(--quick-h) - var(--banner-h, 0px) - 36px);
+}
+
 .alert-quick-form {
   display: flex;
   flex-wrap: wrap;

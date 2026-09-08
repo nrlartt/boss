@@ -23,8 +23,21 @@ function loadDotEnv() {
 
 loadDotEnv();
 
+function publicBaseUrl(): string {
+  const explicit = process.env.BOSS_PUBLIC_URL?.trim();
+  if (explicit) return explicit.replace(/\/$/, "");
+  const railway = process.env.RAILWAY_PUBLIC_DOMAIN?.trim();
+  if (railway) return `https://${railway}`;
+  return "";
+}
+
 export const config = {
   port: Number(process.env.PORT ?? 8790),
+  host: process.env.BOSS_HOST?.trim() || (process.env.PORT ? "0.0.0.0" : "127.0.0.1"),
+  publicUrl: publicBaseUrl(),
+  hosted:
+    process.env.BOSS_HOSTED === "1" ||
+    Boolean(process.env.RAILWAY_ENVIRONMENT || process.env.RAILWAY_PUBLIC_DOMAIN),
   dataDir: path.resolve(process.cwd(), process.env.BOSS_DATA_DIR ?? "var"),
   binanceSpotBase: (process.env.BINANCE_SPOT_BASE ?? "https://api.binance.com").replace(
     /\/$/,

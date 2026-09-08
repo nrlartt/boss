@@ -315,8 +315,8 @@
           <strong>EXECUTE</strong>.
         </p>
         <div class="cta-row">
-          <a class="btn btn-primary" href="https://github.com/nrlartt/boss">View source on GitHub</a>
-          <a class="btn btn-ghost" href="#install">Run the desk locally</a>
+          <a class="btn btn-primary" id="live-desk-link" href="/app/">Open live desk</a>
+          <a class="btn btn-ghost" href="https://github.com/nrlartt/boss">View source on GitHub</a>
         </div>
         <div class="stats">
           <div class="stat"><b>Live</b><span>Binance public REST + WS</span></div>
@@ -459,5 +459,19 @@
         </p>
       </footer>
     </div>
+    <script>
+      (function () {
+        var live = document.getElementById("live-desk-link");
+        if (!live) return;
+        var host = location.hostname;
+        if (host.endsWith("github.io")) {
+          live.href = "https://boss-production.up.railway.app/";
+          live.textContent = "Open live desk →";
+        } else if (host.includes("railway.app")) {
+          live.href = "/";
+          live.textContent = "Open live desk →";
+        }
+      })();
+    </script>
   </body>
 </html>

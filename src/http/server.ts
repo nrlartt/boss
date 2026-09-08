@@ -37,9 +37,11 @@ export function startHttp(): void {
     }
     throw error;
   });
-  server.listen(config.port, "127.0.0.1", () => {
-    console.log(`BOSS desk http://127.0.0.1:${config.port}`);
-    console.log(`BOSS MCP  http://127.0.0.1:${config.port}/mcp`);
+  server.listen(config.port, config.host, () => {
+    const base = config.publicUrl || `http://127.0.0.1:${config.port}`;
+    console.log(`BOSS desk ${base}`);
+    console.log(`BOSS MCP  ${base}/mcp`);
+    if (config.hosted) console.log("BOSS hosted mode — public demo, no API keys required.");
   });
 }
 

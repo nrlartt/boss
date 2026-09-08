@@ -35,9 +35,13 @@ export async function health() {
   try {
     const ticker = await fetchTickers(["BTCUSDT"]);
     const row = ticker[0];
+    const base = config.publicUrl || `http://127.0.0.1:${config.port}`;
     return {
       ok: true,
       service: "BOSS",
+      hosted: config.hosted,
+      engine: "live",
+      publicUrl: base,
       binanceSpot: {
         reachable: true,
         sample: row ? { symbol: row.symbol, last: row.lastPrice, changePct: row.priceChangePercent } : null,
@@ -45,14 +49,19 @@ export async function health() {
       },
       directApi: hasDirectApiKeys(),
       account: accountSummary(),
-      mcp: `http://127.0.0.1:${config.port}/mcp`,
+      mcp: `${base}/mcp`,
       scope: loadScope(),
       audit: auditCounters(),
+      boot: lastBootGuards().map((row) => ({ id: row.id, status: row.status })),
     };
   } catch (error) {
+    const base = config.publicUrl || `http://127.0.0.1:${config.port}`;
     return {
       ok: false,
       service: "BOSS",
+      hosted: config.hosted,
+      engine: "offline",
+      publicUrl: base,
       binanceSpot: {
         reachable: false,
         error: error instanceof Error ? error.message : String(error),
@@ -60,9 +69,10 @@ export async function health() {
       },
       directApi: hasDirectApiKeys(),
       account: accountSummary(),
-      mcp: `http://127.0.0.1:${config.port}/mcp`,
+      mcp: `${base}/mcp`,
       scope: loadScope(),
       audit: auditCounters(),
+      boot: lastBootGuards().map((row) => ({ id: row.id, status: row.status })),
     };
   }
 }
