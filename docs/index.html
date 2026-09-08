@@ -463,14 +463,22 @@
       (function () {
         var live = document.getElementById("live-desk-link");
         if (!live) return;
-        var host = location.hostname;
-        if (host.endsWith("github.io")) {
-          live.href = "https://boss-production.up.railway.app/";
-          live.textContent = "Open live desk →";
-        } else if (host.includes("railway.app")) {
-          live.href = "/";
-          live.textContent = "Open live desk →";
-        }
+        fetch("./live.json")
+          .then(function (res) {
+            return res.json();
+          })
+          .then(function (data) {
+            if (data && data.url) {
+              live.href = data.url;
+              live.textContent = (data.label || "Open live desk") + " →";
+            } else {
+              live.href = "#install";
+              live.textContent = "Run locally (Railway pending)";
+            }
+          })
+          .catch(function () {
+            live.href = "#install";
+          });
       })();
     </script>
   </body>
