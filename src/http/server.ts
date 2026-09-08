@@ -180,8 +180,15 @@ async function api(req: IncomingMessage, res: ServerResponse, url: URL): Promise
 }
 
 function serveStatic(pathname: string, res: ServerResponse): void {
-  const relative = pathname === "/" ? "/index.html" : pathname;
-  const file = path.normalize(path.join(publicDir, relative));
+  let relative = pathname;
+  if (pathname === "/" || pathname === "") {
+    relative = "/landing/index.html";
+  } else if (pathname === "/app" || pathname === "/app/") {
+    relative = "/index.html";
+  } else if (pathname.startsWith("/app/")) {
+    relative = pathname.slice(4);
+  }
+  const file = path.normalize(path.join(publicDir, relative === "/" ? "/landing/index.html" : relative));
   if (!file.startsWith(publicDir) || !existsSync(file)) {
     json(res, { error: { code: "NOT_FOUND", message: "Not found" } }, 404);
     return;
@@ -211,8 +218,9 @@ async function handleMcp(req: IncomingMessage, res: ServerResponse): Promise<voi
       ok: true,
       service: "BOSS",
       transport: "streamable-http",
-      desk: `http://127.0.0.1:${config.port}/`,
-      hint: "This URL is for Cursor MCP, not a browser page. Open the desk at / instead.",
+      desk: `${config.publicUrl || `http://127.0.0.1:${config.port}`}/app/`,
+      mcp: `${config.publicUrl || `http://127.0.0.1:${config.port}`}/mcp`,
+      hint: "Open the live desk at /app/. This URL is for MCP clients.",
     });
     return;
   }

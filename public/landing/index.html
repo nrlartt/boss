@@ -1,0 +1,274 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta
+      name="description"
+      content="BOSS — permission-first Binance Spot copilot. Live market data, fail-closed policy gate, EXECUTE-only sends via Agent OS MCP."
+    />
+    <title>BOSS — Binance Spot permission desk</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="/landing/landing.css" />
+  </head>
+  <body>
+    <header class="site-nav">
+      <div class="wrap">
+        <a class="brand" href="/"><em>BOSS</em> Spot desk</a>
+        <nav class="nav-links">
+          <a href="#how">How it works</a>
+          <a href="#architecture">Architecture</a>
+          <a href="#safety">Safety</a>
+          <a href="#connect">Connect</a>
+          <a href="#faq">FAQ</a>
+        </nav>
+        <div class="nav-cta">
+          <a class="btn btn-ghost" href="https://github.com/nrlartt/boss" target="_blank" rel="noopener noreferrer">GitHub</a>
+          <a class="btn btn-primary" href="/app/">Launch app →</a>
+        </div>
+      </div>
+    </header>
+
+    <main>
+      <section class="hero">
+        <div class="wrap hero-grid">
+          <div>
+            <div class="eyebrow">Binance Agent OS · MCP copilot</div>
+            <h1>Observe. Plan. <em>Approve.</em> Then act.</h1>
+            <p class="lead">
+              BOSS is a permission-first Spot copilot on Binance Agent OS. Say
+              <strong>“plan buy 50 usdt BTCUSDT”</strong>, and it sizes to exchange filters, runs a
+              fail-closed policy gate, and only mints a send token after you type <strong>EXECUTE</strong>.
+            </p>
+            <div class="hero-actions">
+              <a class="btn btn-primary" href="/app/">Launch app →</a>
+              <a class="btn btn-ghost" href="#safety">Read the safety model</a>
+            </div>
+            <p class="hero-note">Runs in this browser · hosted demo · live mainnet data · no keys on server</p>
+            <div class="live-strip">
+              <span class="live-dot" id="live-dot"></span>
+              <span id="live-status">Checking engine…</span>
+              <span class="chip" id="hero-btc">BTC —</span>
+              <span class="chip" id="hero-latency">— ms</span>
+              <span class="chip warn">HOSTED DEMO · READ/PLAN ONLY</span>
+              <span id="live-meta" style="margin-left: auto; font-size: 11px"></span>
+            </div>
+            <div class="stats">
+              <div class="stat"><b>14</b><span>BOSS MCP tools</span></div>
+              <div class="stat"><b>20+</b><span>Policy rules per plan</span></div>
+              <div class="stat"><b>0</b><span>Invented prices</span></div>
+              <div class="stat"><b>20</b><span>Tests passing</span></div>
+            </div>
+          </div>
+          <div class="hero-panel">
+            <div class="panel-head">
+              <span>Live command trace</span>
+              <span>paper-safe hosted mode</span>
+            </div>
+            <div class="terminal" id="hero-terminal">Connecting to engine…</div>
+          </div>
+        </div>
+      </section>
+
+      <section class="section" id="how">
+        <div class="wrap">
+          <div class="section-label">How it works</div>
+          <h2>Four layers, one engine, one gate</h2>
+          <p class="section-lead">
+            Everything an agent can do goes through the same desk session: observe, analyze, plan, approve, send.
+            Every order crosses the same policy matrix. MCP and the web UI share one process — what your agent does is
+            what the dashboard shows.
+          </p>
+          <div class="grid-4">
+            <article class="card">
+              <div class="card-num">01</div>
+              <h3>Market observer</h3>
+              <p>Live ticker, depth, 1h/4h candles, 20-symbol tape, Web3 pulse boards.</p>
+            </article>
+            <article class="card">
+              <div class="card-num">02</div>
+              <h3>Research engine</h3>
+              <p>Technical snapshot, RSS headlines, Fear &amp; Greed, scored bias — no hallucinated prices.</p>
+            </article>
+            <article class="card">
+              <div class="card-num">03</div>
+              <h3>Policy gate</h3>
+              <p>BLOCK, UNKNOWN, or CLEAR with every rule visible. Missing data never treated as zero.</p>
+            </article>
+            <article class="card">
+              <div class="card-num">04</div>
+              <h3>Agent OS bridge</h3>
+              <p>EXECUTE mints a one-time token. Agent OS sends exact packet fields + HMAC stamp.</p>
+            </article>
+          </div>
+          <div class="flow" style="margin-top: 24px">
+            <article class="card flow-step" data-step="01 · TICK">
+              <h3>Observe</h3>
+              <p>Pull live Spot evidence, Web3 boards, and optional analysis report.</p>
+            </article>
+            <article class="card flow-step" data-step="02 · PROPOSE">
+              <h3>Plan</h3>
+              <p>Size quantity to lot step, tick, and min-notional. Gate runs immediately.</p>
+            </article>
+            <article class="card flow-step" data-step="03 · APPROVE">
+              <h3>EXECUTE</h3>
+              <p>Single-use approval token (60s). Nothing sends until you type the phrase.</p>
+            </article>
+            <article class="card flow-step" data-step="04 · RECEIPT">
+              <h3>Reconcile</h3>
+              <p>Hash-chained receipts classify AUTHORISED vs FOREIGN / FORGED / MISMATCHED.</p>
+            </article>
+          </div>
+        </div>
+      </section>
+
+      <section class="section" id="architecture">
+        <div class="wrap">
+          <div class="section-label">Architecture</div>
+          <h2>One process, two MCP servers, one desk</h2>
+          <p class="section-lead">
+            Cursor / Claude hosts talk to BOSS MCP and Binance Agent OS MCP. BOSS never replaces Agent OS — it sits in
+            front as the permission and policy layer.
+          </p>
+          <div class="grid-3">
+            <article class="card">
+              <h3>MCP hosts</h3>
+              <p>Cursor · Claude Code · Codex · VS Code</p>
+            </article>
+            <article class="card">
+              <h3>BOSS MCP</h3>
+              <p><code>/mcp</code> · observe · plan · approve · packet · reconcile</p>
+            </article>
+            <article class="card">
+              <h3>Binance Agent OS</h3>
+              <p><code>agent.binance.com/mcp/agentic</code> · account + Spot send · no withdrawal scope</p>
+            </article>
+          </div>
+        </div>
+      </section>
+
+      <section class="section" id="safety">
+        <div class="wrap">
+          <div class="section-label">Safety by construction</div>
+          <h2>Fail-closed gate, every verdict with a reason</h2>
+          <p class="section-lead">
+            Hosted demo runs without API keys — observe and plan only. Your balance is never exposed on the public URL.
+          </p>
+          <table>
+            <thead>
+              <tr><th>Verdict</th><th>Meaning</th></tr>
+            </thead>
+            <tbody>
+              <tr><td class="verdict-block"><strong>BLOCK</strong></td><td>Hard rule failed. No approval, no send.</td></tr>
+              <tr><td class="verdict-unknown"><strong>UNKNOWN</strong></td><td>Required fact missing (usually balances). Plan allowed; send refused.</td></tr>
+              <tr><td class="verdict-clear"><strong>CLEAR</strong></td><td>Gate open — you still must type EXECUTE.</td></tr>
+            </tbody>
+          </table>
+          <div class="grid-3" style="margin-top: 20px">
+            <article class="card">
+              <h3>HMAC order stamps</h3>
+              <p>Every approved packet carries <code>boss_&lt;seq&gt;_&lt;mac&gt;</code>. Copying the prefix is not enough.</p>
+            </article>
+            <article class="card">
+              <h3>Scope burn</h3>
+              <p>FOREIGN / FORGED / MISMATCHED orders burn trade scope until restored from the desk.</p>
+            </article>
+            <article class="card">
+              <h3>Default caps</h3>
+              <p>100 USDT per order · 500 USDT per UTC day · Spot only · withdrawals never.</p>
+            </article>
+          </div>
+          <h3 style="margin-top: 28px">What BOSS never does on the hosted demo</h3>
+          <div class="grid-3">
+            <article class="card"><h3>Hold your API keys</h3><p>Public Railway instance ships without Binance credentials.</p></article>
+            <article class="card"><h3>Send without EXECUTE</h3><p>Approval tokens are single-use and expire in 60 seconds.</p></article>
+            <article class="card"><h3>Invent a price</h3><p>If Binance is unreachable, BOSS stops — no placeholder fills.</p></article>
+          </div>
+        </div>
+      </section>
+
+      <section class="section" id="connect">
+        <div class="wrap">
+          <div class="section-label">Connect your agent</div>
+          <h2>BOSS is an MCP server. Point any host at it.</h2>
+          <p class="section-lead">Start locally with <code>npm start</code>, or use the hosted desk for judges.</p>
+          <div class="card" style="margin-bottom: 16px">
+            <pre style="margin: 0; overflow-x: auto; font-size: 12px"><code>// .cursor/mcp.json
+{
+  "mcpServers": {
+    "binance": { "url": "https://agent.binance.com/mcp/agentic" },
+    "boss": { "url": "http://127.0.0.1:8790/mcp" }
+  }
+}</code></pre>
+          </div>
+          <div class="tools-grid">
+            <span class="tool read">boss_status</span>
+            <span class="tool read">boss_observe</span>
+            <span class="tool read">boss_tape</span>
+            <span class="tool read">boss_analyze</span>
+            <span class="tool write">boss_plan</span>
+            <span class="tool write">boss_attach_account</span>
+            <span class="tool write">boss_approve</span>
+            <span class="tool read">boss_packet</span>
+            <span class="tool write">boss_reconcile</span>
+            <span class="tool read">boss_audit</span>
+            <span class="tool read">boss_receipt</span>
+            <span class="tool read">boss_mandate</span>
+          </div>
+        </div>
+      </section>
+
+      <section class="section" id="faq">
+        <div class="wrap">
+          <div class="section-label">FAQ</div>
+          <h2>Questions judges ask</h2>
+          <div class="faq">
+            <details open>
+              <summary>Is the hosted URL using my balance?</summary>
+              <p>No. The public demo has no API keys. Anyone can analyze and plan; nobody can spend your Binance funds from the hosted instance.</p>
+            </details>
+            <details>
+              <summary>Is this live trading?</summary>
+              <p>Hosted mode is live market data with observe/plan only. Real sends happen through your own Agent OS connection or local desk with your keys — never on the public demo server.</p>
+            </details>
+            <details>
+              <summary>Why UNKNOWN so often?</summary>
+              <p>Missing account balances stay UNKNOWN on BALANCE_SUFFICIENT. BOSS never treats absent data as zero — attach balances and re-plan to reach CLEAR.</p>
+            </details>
+            <details>
+              <summary>How is BOSS different from a size cap?</summary>
+              <p>Caps check the order. BOSS checks the full permission path: policy matrix, EXECUTE token, HMAC stamp, and post-trade classification.</p>
+            </details>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <footer class="site-footer">
+      <div class="wrap footer-grid">
+        <div>
+          <div class="brand"><em>BOSS</em> Spot desk</div>
+          <p style="margin-top: 10px">Permission-first Binance Spot copilot for Agent OS. Not financial advice.</p>
+        </div>
+        <div>
+          <h4>Product</h4>
+          <a href="/app/">Launch app</a>
+          <a href="#how">How it works</a>
+          <a href="#safety">Safety model</a>
+        </div>
+        <div>
+          <h4>Resources</h4>
+          <a href="https://github.com/nrlartt/boss" target="_blank" rel="noopener noreferrer">GitHub</a>
+          <a href="https://www.binance.com/en/agent-os" target="_blank" rel="noopener noreferrer">Binance Agent OS</a>
+          <a href="/api/health">Engine health</a>
+        </div>
+      </div>
+    </footer>
+    <script src="/landing/landing.js"></script>
+  </body>
+</html>

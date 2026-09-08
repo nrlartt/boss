@@ -1,4 +1,5 @@
 {
-  "url": "https://boss-desk-production.up.railway.app",
-  "label": "Open live desk"
+  "url": "https://boss-desk-production.up.railway.app/",
+  "appUrl": "https://boss-desk-production.up.railway.app/app/",
+  "label": "Launch app"
 }
